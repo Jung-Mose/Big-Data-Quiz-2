@@ -16,19 +16,50 @@ df['이직여부']] = scaler.fit_transform(df['이직여부'])
 
 df_encoded = pd.get_dummies(df, columns=["Age","출장빈도","일일성과지표","부서","집까지거리","학력수준","전공분야","EmployeeCount","EmployeeNumber","근무환경만족도","성별","시간당급여","업무몰입도","직급","직무","업무만족도","결혼상태","월급여","MonthlyRate","이전회사경험수","Over18","야근여부","연봉인상률","성과등급","대인관계만족도","StandardHours","스톡옵션등급","총경력","연간교육횟수","워라밸","현회사근속년수","현직무근속년수","최근승진후경과년수","현상사근속년수"])
 
+#피처 선택 (15점)
+
 #이직 여부 이직 여부 예측에 유의미하다고 생각되는 피처 5~10개: "Age", "집까지거리", "근무환경만족도", "시간당급여", "직업만족도", "월급여", "성과등급", "연봉인상률", "워라밸"
 #이유: 직장인들에게 가장 중요한 급여와 업무 환경과 관련된 변수들이다.
 
-from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LogisticRegression
+features = ["Age", "집까지거리", "근무환경만족도", "시간당급여", 
+            "직업만족도", "월급여", "성과등급", "연봉인상률", "워라밸"]
 
-X = df_encoded.drop('이직여부', axis=1)
-y = df_encoded['이직여부']
+X = df[features]
+y = df['이직여부']
+
+
+
+#모델 훈련 (20점)
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
 model = LogisticRegression()
 model.fit(X_train, y_train)
+
+#성능 검증 (10점)
+
+y_pred = model.predict(X_test)
+
+accuracy = accuracy_score(y_test, y_pred)
+print(f"정확도: {accuracy:.2f}")
+
+cm = confusion_matrix(y_test, y_pred)
+print("혼동 행렬:")
+print(cm)
+
+
+#예측 결과 분석 (10점)
+y_prob = model.predict_proba(X_test)[:, 1]
+
+yes_count = sum(y_pred)
+print(f"Yes 직원 수: {yes_count}")
+
+result_df = X_test.copy()
+result_df['이직확률'] = y_prob
+top_5 = result_df.sort_values(by='이직확률', ascending=False).head(5)
+
+
+
 
 
 
