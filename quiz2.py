@@ -6,25 +6,41 @@ df = pd.read_csv("한국_기업문화_HR_데이터셋_샘플.csv")
 
 #데이터 전처리 (15점)
 
+if df['이직여부'].dtype == 'object':
+  
+    df['이직여부'] = df['이직여부'].map({'Yes': 1, 'No': 0})
+    
+
 df = df.dropna(subset=["Age","이직여부","출장빈도","일일성과지표","부서","집까지거리","학력수준","전공분야","EmployeeCount","EmployeeNumber","근무환경만족도","성별","시간당급여","업무몰입도","직급","직무","업무만족도","결혼상태","월급여","MonthlyRate","이전회사경험수","Over18","야근여부","연봉인상률","성과등급","대인관계만족도","StandardHours","스톡옵션등급","총경력","연간교육횟수","워라밸","현회사근속년수","현직무근속년수","최근승진후경과년수","현상사근속년수"])
 
-from sklearn.preprocessing import MinMaxScaler
+columns_to_encode = ["Age","출장빈도","일일성과지표","부서","집까지거리","학력수준","전공분야","EmployeeCount","EmployeeNumber","근무환경만족도","성별","시간당급여","업무몰입도","직급","직무","업무만족도","결혼상태","월급여","MonthlyRate","이전회사경험수","Over18","야근여부","연봉인상률","성과등급","대인관계만족도","StandardHours","스톡옵션등급","총경력","연간교육횟수","워라밸","현회사근속년수","현직무근속년수","최근승진후경과년수","현상사근속년수"]
 
-scaler = MinMaxScaler()
+columns_to_encode_exist = [col for col in columns_to_encode if col in df.columns]
 
-df['이직여부']] = scaler.fit_transform(df['이직여부'])
 
-df_encoded = pd.get_dummies(df, columns=["Age","출장빈도","일일성과지표","부서","집까지거리","학력수준","전공분야","EmployeeCount","EmployeeNumber","근무환경만족도","성별","시간당급여","업무몰입도","직급","직무","업무만족도","결혼상태","월급여","MonthlyRate","이전회사경험수","Over18","야근여부","연봉인상률","성과등급","대인관계만족도","StandardHours","스톡옵션등급","총경력","연간교육횟수","워라밸","현회사근속년수","현직무근속년수","최근승진후경과년수","현상사근속년수"])
+df_encoded = pd.get_dummies(df, columns=columns_to_encode_exist)
+
 
 #피처 선택 (15점)
 
 #이직 여부 이직 여부 예측에 유의미하다고 생각되는 피처 5~10개: "Age", "집까지거리", "근무환경만족도", "시간당급여", "직업만족도", "월급여", "성과등급", "연봉인상률", "워라밸"
 #이유: 직장인들에게 가장 중요한 급여와 업무 환경과 관련된 변수들이다.
 
-features = ["Age", "집까지거리", "근무환경만족도", "시간당급여", 
-            "직업만족도", "월급여", "성과등급", "연봉인상률", "워라밸"]
+selected_features = ["Age", "집까지거리", "근무환경만족도", "시간당급여",
+            "업무만족도", "월급여", "성과등급", "연봉인상률", "워라밸"] 
 
-X = df[features]
+features_after_encoding = []
+for original_feature in selected_features:
+    if original_feature in df_encoded.columns:
+        features_after_encoding.append(original_feature)
+    else:
+        encoded_cols = [col for col in df_encoded.columns if col.startswith(original_feature + '_')]
+        features_after_encoding.extend(encoded_cols)
+
+features_after_encoding = list(set(features_after_encoding))
+
+X = df_encoded[features_after_encoding]
+
 y = df['이직여부']
 
 
@@ -84,7 +100,7 @@ for i, pred in enumerate(new_predictions, 1):
 
 #다음 중 한 가지 방법을 사용하여, **이직 여부 예측에 가장 큰 영향을 준 피처(컬럼)**를 파악하고 결과를 해석하시오: (15점)
 
-② 랜덤 포레스트 사용 시
+# ② 랜덤 포레스트 사용 시
 
 # 모델 훈련 후
 importances = model.feature_importances_
