@@ -58,13 +58,38 @@ result_df = X_test.copy()
 result_df['이직확률'] = y_prob
 top_5 = result_df.sort_values(by='이직확률', ascending=False).head(5)
 
+#신입사원 예측 (10점)
 
 
+신입사원_데이터 = [{
+    "Age": 29, "DistanceFromHome": 5, "EnvironmentSatisfaction": 2,
+    "HourlyRate": 70, "JobSatisfaction": 2, "MonthlyIncome": 2800,
+    "PerformanceRating": 3, "PercentSalaryHike": 12, "WorkLifeBalance": 2
+    },
+    {
+        "Age": 42, "DistanceFromHome": 10, "EnvironmentSatisfaction": 3,
+        "HourlyRate": 85, "JobSatisfaction": 4, "MonthlyIncome": 5200,
+        "PerformanceRating": 3, "PercentSalaryHike": 14, "WorkLifeBalance": 3
+    },
+    {
+        "Age": 35, "DistanceFromHome": 2, "EnvironmentSatisfaction": 1,
+        "HourlyRate": 65, "JobSatisfaction": 1, "MonthlyIncome": 3300,
+        "PerformanceRating": 3, "PercentSalaryHike": 11, "WorkLifeBalance": 2
+    }
+]
 
+new_predictions = model.predict(df_new_employees)
+for i, pred in enumerate(new_predictions, 1):
+    print(f"신입사원 {i} 이직 예측: {pred}")
 
+#다음 중 한 가지 방법을 사용하여, **이직 여부 예측에 가장 큰 영향을 준 피처(컬럼)**를 파악하고 결과를 해석하시오: (15점)
 
+② 랜덤 포레스트 사용 시
 
-
+# 모델 훈련 후
+importances = model.feature_importances_
+features = X_train.columns
+importance = pd.Series(importances, index=features).sort_values(ascending=False)
 
 
 
